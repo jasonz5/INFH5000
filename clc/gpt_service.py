@@ -2,16 +2,17 @@
 # -*- coding:utf-8 _*-
 
 import os
-from typing import Dict, Union, Optional
+
 from typing import List
-
-from accelerate import load_checkpoint_and_dispatch
+from peft import PeftModel
 from langchain.llms.base import LLM
+from typing import Dict, Union, Optional
 from langchain.llms.utils import enforce_stop_tokens
-from transformers import AutoModel, AutoTokenizer
+from accelerate import load_checkpoint_and_dispatch
+from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
 
 
-class ChatGLMService(LLM): # 继承于langchain.llms.base
+class ChatQwenService(LLM): # 继承于langchain.llms.base
     max_token: int = 10000
     temperature: float = 0.1
     top_p = 0.9
@@ -24,31 +25,49 @@ class ChatGLMService(LLM): # 继承于langchain.llms.base
 
     @property
     def _llm_type(self) -> str:
-        return "ChatGLM"
+        return "Qwen2ForCausalLM"
 
     def _call(self,
               prompt: str,
               stop: Optional[List[str]] = None) -> str:
-        response, _ = self.model.chat(
-            self.tokenizer,
-            prompt,
-            history=self.history,
-            max_length=self.max_token,
-            temperature=self.temperature,
-        )
+        text = self.tokenizer.apply_chat_template(self.history, tokenize=False, add_generation_prompt=True)
+        model_inputs = self.tokenizer([text], return_tensors="pt").to("cuda")
+        generated_ids = self.model.generate(model_inputs.input_ids, max_new_tokens=256)
+        generated_ids = [output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
+        response = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        # response, _ = self.model.chat(
+        #     self.tokenizer,
+        #     prompt,
+        #     history=self.history,
+        #     max_length=self.max_token,
+        #     temperature=self.temperature,
+        # )
+
         if stop is not None:
             response = enforce_stop_tokens(response, stop)
-        self.history = self.history + [[None, response]]
+        # print("self.history:",self.history)
+        cur_sys = {"role":"system","content":response}
+        cur_usr = {"role":"user","content":prompt}
+        self.history = self.history+[cur_sys,cur_usr]
         return response
+
+    def set_history(self, history):
+        self.history = history
 
     # 加载预训练的模型和对应的分词器,这里要改成自己的模型
     def load_model(self,
-                   model_name_or_path: str = "THUDM/chatglm-6b"):
+                   model_name_or_path: str, 
+                # 下面的代码上传微调模型后再打开
+                #    med_lora: bool
+                   ):
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path,
             trust_remote_code=True
         )
-        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True).half().cuda()
+        self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path, trust_remote_code=True).half().cuda()
+        # 下面的代码上传微调模型后再打开
+        # if med_lora:
+        #     self.model = PeftModel.from_pretrained(self.model, model_id="/home/wangrui/LLM/infh5000/train/models/xxx")
         self.model = self.model.eval()
 
     # 将transformer模型的各层分布到多个GPU上进行并行处理
@@ -114,5 +133,5 @@ class ChatGLMService(LLM): # 继承于langchain.llms.base
 
 # if __name__ == '__main__':
 #     config=LangChainCFG()
-#     chatLLM = ChatGLMService()
+#     chatLLM = ChatQwenService()
 #     chatLLM.load_model(model_name_or_path=config.llm_model_name)
