@@ -3,9 +3,7 @@ from datasets import Dataset, load_dataset
 from peft import LoraConfig, TaskType, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForSeq2Seq, TrainingArguments, Trainer
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
-
-ds = load_dataset("michaelwzhu/ChatMed_Consult_Dataset", split="train[:2%]")
+ds = load_dataset("michaelwzhu/ChatMed_Consult_Dataset", split="train").shuffle(seed=42).train_test_split(test_size=0.5)["train"]
 tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen1.5-0.5B-Chat")
 
 def process_func(example):
@@ -36,16 +34,15 @@ model.print_trainable_parameters()
 
 args = TrainingArguments(
     output_dir="./rui20240425",
-    per_device_train_batch_size=32,
-    # gradient_accumulation_steps=8,
+    per_device_train_batch_size=16,
     logging_steps=10,
-    num_train_epochs=2,
+    num_train_epochs=1,
     learning_rate=5e-5,
     overwrite_output_dir=True,
     local_rank=int(os.environ.get('LOCAL_RANK', -1)),
-    # fp16=True,
     dataloader_num_workers=4,
-    save_strategy = "epoch", 
+    save_strategy = "steps", 
+    save_steps = 1000,
 )
 
 trainer = Trainer(

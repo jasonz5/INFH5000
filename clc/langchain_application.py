@@ -18,6 +18,7 @@ class LangChainApplication(object):
     def get_llm_answer(self, query=''):
         prompt = query
         result = self.llm_service._call(prompt)
+        print("************get_llm_answer***********result:",result)
         return result
 
 
