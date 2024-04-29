@@ -59,13 +59,13 @@ class ChatQwenService(LLM): # 继承于langchain.llms.base
     # 加载预训练的模型和对应的分词器,这里要改成自己的模型
     def load_model(self,
                    model_name_or_path: str,
-                   use_lora: str = "Qwen1.5-7B-chatMed",
+                   use_lora: str = "Qwen1.5-0.5B-ChatMed",
                    ):
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path
         )
         self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path).cuda()
-        if use_lora == "Qwen1.5-7B-chatMed":
+        if use_lora == "Qwen1.5-0.5B-ChatMed":
             self.model = PeftModel.from_pretrained(self.model, model_id="/home/wangrui/LLM/infh5000/train/models/checkpoint-4000").cuda()
             print("*********PeftModel loaded successfully")
         else:

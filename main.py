@@ -56,11 +56,11 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
         with gr.Row():
             large_language_model = gr.Dropdown(
                 [
-                    "Qwen1.5-7B-chatMed",
-                    "Qwen1.5-7B-chat"
+                    "Qwen1.5-0.5B-ChatMed",
+                    "Qwen1.5-0.5B-Chat"
                 ],
                 label="large language model",
-                value="Qwen1.5-7B-chatMed")
+                value="Qwen1.5-0.5B-ChatMed")
             
         with gr.Column(scale=2):
             with gr.Row():
