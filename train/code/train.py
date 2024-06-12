@@ -26,7 +26,7 @@ def process_func(example):
 
 tokenized_ds = ds.map(process_func, remove_columns=ds.column_names)
 
-model = AutoModelForCausalLM.from_pretrained("/data2/share/Qwen1.5-0.5B-Chat")
+model = AutoModelForCausalLM.from_pretrained("/data/jasonzhou/Models/Qwen1.5-0.5B-Chat")
 config = LoraConfig(task_type=TaskType.CAUSAL_LM, target_modules=["20.self_attn.q_proj", "20.self_attn.k_proj", "20.self_attn.v_proj"], modules_to_save=["word_embeddings"])
 model = get_peft_model(model, config)
 

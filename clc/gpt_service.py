@@ -7,7 +7,7 @@ from typing import List
 from peft import PeftModel
 from langchain.llms.base import LLM
 from typing import Dict, Union, Optional
-from langchain.llms.utils import enforce_stop_tokens
+from langchain_community.llms.utils import enforce_stop_tokens
 from accelerate import load_checkpoint_and_dispatch
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
 
@@ -66,7 +66,7 @@ class ChatQwenService(LLM): # 继承于langchain.llms.base
         )
         self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path).cuda()
         if use_lora == "Qwen1.5-0.5B-ChatMed":
-            self.model = PeftModel.from_pretrained(self.model, model_id="/home/wangrui/LLM/infh5000/train/models/checkpoint-4000").cuda()
+            self.model = PeftModel.from_pretrained(self.model, model_id="/data/jasonzhou/Chatbot/INFH5000/train/models/checkpoint-4000").cuda()
             print("*********PeftModel loaded successfully")
         else:
             print("*********PeftModel not loaded")

@@ -1,6 +1,6 @@
 {
   "auto_mapping": null,
-  "base_model_name_or_path": "/data2/share/Qwen1.5-0.5B-Chat",
+  "base_model_name_or_path": "/data/jasonzhou/Models/Qwen1.5-0.5B-Chat",
   "bias": "none",
   "fan_in_fan_out": false,
   "inference_mode": true,

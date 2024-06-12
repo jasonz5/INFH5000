@@ -1,5 +1,5 @@
 langchain
-gradio==3.50.2
+gradio
 transformers
 sentence_transformers
 faiss-cpu

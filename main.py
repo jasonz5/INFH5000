@@ -6,7 +6,8 @@ from app_modules.presets import *
 from clc.langchain_application import LangChainApplication
 
 class LangChainCFG:
-    llm_model_name = '/data2/share/Qwen1.5-0.5B-Chat' 
+    # llm_model_name = 'Qwen/Qwen1.5-72B-Chat' 
+    llm_model_name = '/data/jasonzhou/Models/Qwen1.5-0.5B-Chat' 
     n_gpus=2
 
 
@@ -105,7 +106,6 @@ demo.queue().launch(
     server_name='0.0.0.0',
     server_port=8888,
     share=False,
-    # share=True,
     show_error=True,
     debug=True,
     # enable_queue=True,
